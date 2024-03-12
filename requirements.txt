@@ -1,0 +1,7 @@
+aiogram==3.4.1
+aiosqlite==0.17.0
+alembic==1.7.7
+pre-commit==3.6.2
+pydantic-settings==2.2.1
+python-dotenv==1.0.0
+SQLAlchemy==1.4.36
