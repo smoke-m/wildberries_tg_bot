@@ -27,5 +27,5 @@ async def get_handler(msg: Message):
 async def message_handler(msg: Message):
     logger.info(f"Получено сообщение {msg.text}")
     await msg.answer(f"ID: {msg.from_user.id}\n" f"Текст: {msg.text}")
-    info = dict(user_id=msg.from_user.id, article=msg.text)
+    info = dict(user_id=int(msg.from_user.id), article=int(msg.text))
     await requests_info_crud.create(info)

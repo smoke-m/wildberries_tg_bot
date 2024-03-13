@@ -1,7 +1,19 @@
 version: '3'
 
+volumes:
+  pg_data_wb:
+
 services:
-  bot_api_wb_cont:
+  db:
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - pg_data_wb:/var/lib/postgresql/data
+    restart: always
+
+  bot:
     build: ./
     env_file: .env
+    depends_on:
+      - db
     restart: always
