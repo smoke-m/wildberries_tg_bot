@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  bot_api_wb_cont:
+    build: ./
+    env_file: .env
+    restart: always
