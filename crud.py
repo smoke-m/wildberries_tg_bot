@@ -24,7 +24,7 @@ class CRUDBase:
             db_obj = await session.execute(
                 select(self.model).where(self.model.user_id == obj_id)
             )
-        return db_obj.scalars().first()
+        return db_obj.scalars().all()[:-3:-1]
 
 
 requests_info_crud = CRUDBase(RequestsInfo)
