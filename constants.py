@@ -28,6 +28,9 @@ INFO_MSG = (
 )
 DB_MSG = "Дата: {},\n" "артикул: {}.\n"
 
+# регулярки проекта
+article_re = r"артикул: (\d+)"
+
 
 # Загрузка секретов из .env
 class Settings(BaseSettings):
