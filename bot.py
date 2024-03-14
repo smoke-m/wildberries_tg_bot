@@ -19,6 +19,7 @@ dispatcher.include_router(router)
 
 
 async def main():
+    """Функция запуска бота"""
     logger.info(f"Старт работы бота {int(time.time())}")
     await bot.delete_webhook(drop_pending_updates=True)
     await dispatcher.start_polling(bot)

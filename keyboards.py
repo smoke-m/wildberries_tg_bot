@@ -1,3 +1,5 @@
+"""Модуль создания клавиатур."""
+
 from aiogram.types import (
     KeyboardButton,
     ReplyKeyboardMarkup,

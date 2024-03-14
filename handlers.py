@@ -1,3 +1,5 @@
+"""Модуль Хендлеров проекта."""
+
 import asyncio
 import logging
 import re
@@ -19,17 +21,21 @@ spam_arr = set()
 
 
 class MyState(StatesGroup):
+    """Класс состояния."""
+
     get_article = State()
 
 
 @router.message(F.text, Command("start"))
 async def start_handler(msg: Message):
+    """Хендлер старта работы с пользователем."""
     logger.info(f"Получено сообщение {msg.text}")
-    await msg.answer("Command start!", reply_markup=keyboard_main)
+    await msg.answer("Дабро пожаловать!", reply_markup=keyboard_main)
 
 
 @router.message(F.text.lower() == "получить информацию из бд")
 async def get_handler(msg: Message):
+    """Хендлер возвращает информацию из базы."""
     logger.info(f"Получено сообщение {msg.text}")
     objs = await requests_info_crud.get(msg.from_user.id)
     message = ""
@@ -40,6 +46,7 @@ async def get_handler(msg: Message):
 
 @router.callback_query(F.data == "spam")
 async def start_spam(callback: CallbackQuery):
+    """Хендлер отправляет информацию по товару раз в 5 мин."""
     logger.info(f"Получено сообщение!!! {callback.message.text}")
     spam_arr.add(callback.from_user.id)
     article = re.search(article_re, callback.message.text).group(1)
@@ -55,12 +62,14 @@ async def start_spam(callback: CallbackQuery):
 
 @router.message(F.text.lower() == "остановить уведомления")
 async def stop_spam(msg: Message):
+    """Хендлер останавливает опраку сообщений."""
     logger.info(f"Получено сообщение {msg.text}")
     spam_arr.discard(msg.from_user.id)
 
 
 @router.message(F.text.lower() == "получить информацию по товару")
 async def get_info(msg: Message, state: FSMContext):
+    """Хендлер запуска состояния получить артикул."""
     logger.info(f"Получено сообщение {msg.text}")
     await msg.answer("Введите артикул товара:")
     await state.set_state(MyState.get_article)
@@ -68,6 +77,7 @@ async def get_info(msg: Message, state: FSMContext):
 
 @router.message(MyState.get_article)
 async def return_info(msg: Message, state: FSMContext):
+    """Хендлер выдачи информации о товаре."""
     logger.info(f"Получено сообщение {msg.text}")
     await msg.answer(
         INFO_MSG.format(*get_api_answer(int(msg.text))),
@@ -76,14 +86,3 @@ async def return_info(msg: Message, state: FSMContext):
     info = dict(user_id=int(msg.from_user.id), article=int(msg.text))
     await requests_info_crud.create(info)
     await state.clear()
-
-
-# @router.message(F.text)
-# async def message_handler(msg: Message):
-#     logger.info(f"Получено сообщение {msg.text}")
-#     await msg.answer(
-#         INFO_MSG.format(*get_api_answer(int(msg.text))),
-#         reply_markup=keyboard_inline,
-#     )
-#     info = dict(user_id=int(msg.from_user.id), article=int(msg.text))
-#     await requests_info_crud.create(info)
