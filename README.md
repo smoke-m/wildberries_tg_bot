@@ -20,6 +20,40 @@
 - При нажатии на кнопку «Остановить уведомления» - уведомления останавливаются.
 - При нажатии на кнопку «получить информацию из БД» бот присылает сообщение с последними 5 записями из БД.
 
+### Как запустить проект
+
+Клонируйте репозиторий и перейдите к нему в командной строке:
+
+    git clone git@github.com:smoke-m/wildberries_tg_bot.git
+
+    cd wildberries_tg_bot
+
+Создайте и активируйте venv:
+
+    python -m venv env
+    source venv/Scripts/activate
+
+Установите зависимости из файла requirements.txt:
+
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+
+Выполните миграции:
+
+    alembic upgrade head
+
+Запустите проект:
+
+    python bot.py
+
+Зеркало на hub.docker.com:
+
+    puzzzo/tg_bot_api_wb
+
+Выполните миграции для docker:
+
+    docker compose -f docker-compose.production.yml exec bot alembic upgrade head
+
 #### Pre-commit
 Для минимизации трудностей во время разработки и поддержании высокого качества кода в разработке мы используем `pre-commit`. Данный фреймворк позволяет проверить код на соответствие `PEP8`, защитить ветки master и develop от непреднамеренного коммита, проверить корректность импортов и наличие trailing spaces.
 `Pre-commit` конфигурируется с помощью специального файл `.pre-commit-config.yaml`. Для использования фреймворка его необходимо установить, выполнив команду из активированного виртуального окружения:
