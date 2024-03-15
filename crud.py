@@ -1,3 +1,5 @@
+"""Модуль операций CRUD."""
+
 from sqlalchemy import select
 
 from db import AsyncSessionLocal, RequestsInfo
@@ -11,6 +13,7 @@ class CRUDBase:
         self,
         info: dict,
     ):
+        """запись в базу объекта класса."""
         obj = self.model(**info)
         async with AsyncSessionLocal() as session:
             session.add(obj)
@@ -20,11 +23,15 @@ class CRUDBase:
         self,
         obj_id: int,
     ):
+        """получение пяти последних объектов класса."""
         async with AsyncSessionLocal() as session:
             db_obj = await session.execute(
-                select(self.model).where(self.model.user_id == obj_id)
+                select(self.model)
+                .where(self.model.user_id == obj_id)
+                .order_by(self.model.create_date.desc())
+                .limit(5)
             )
-        return db_obj.scalars().first()
+        return db_obj.scalars().all()
 
 
 requests_info_crud = CRUDBase(RequestsInfo)
