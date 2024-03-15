@@ -26,9 +26,12 @@ class CRUDBase:
         """получение пяти последних объектов класса."""
         async with AsyncSessionLocal() as session:
             db_obj = await session.execute(
-                select(self.model).where(self.model.user_id == obj_id)
+                select(self.model)
+                .where(self.model.user_id == obj_id)
+                .order_by(self.model.create_date.desc())
+                .limit(5)
             )
-        return db_obj.scalars().all()[:-3:-1]
+        return db_obj.scalars().all()
 
 
 requests_info_crud = CRUDBase(RequestsInfo)

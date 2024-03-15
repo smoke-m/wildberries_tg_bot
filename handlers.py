@@ -11,7 +11,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
 from api_requests import get_api_answer
-from constants import article_re, DB_MSG, INFO_MSG
+from constants import ARTICLE_PAT, ARTICLE_RE, DB_MSG, INFO_MSG, TIME_SPAM
 from crud import requests_info_crud
 from keyboards import keyboard_main, keyboard_inline
 
@@ -49,15 +49,21 @@ async def start_spam(callback: CallbackQuery):
     """Хендлер отправляет информацию по товару раз в 5 мин."""
     logger.info(f"Получено сообщение!!! {callback.message.text}")
     spam_arr.add(callback.from_user.id)
-    article = re.search(article_re, callback.message.text).group(1)
-    await callback.answer(text="Подключено", show_alert=True)
-    while callback.from_user.id in spam_arr:
-        await asyncio.sleep(300)
-        await callback.message.answer(
-            INFO_MSG.format(*get_api_answer(int(article))),
-        )
-        info = dict(user_id=int(callback.from_user.id), article=int(article))
-        await requests_info_crud.create(info)
+    article = re.search(ARTICLE_RE, callback.message.text).group(1)
+    await callback.answer(text="Подписка на товар подключена", show_alert=True)
+    try:
+        while callback.from_user.id in spam_arr:
+            await callback.message.answer(
+                INFO_MSG.format(*get_api_answer(int(article))),
+            )
+            info = dict(
+                user_id=int(callback.from_user.id), article=int(article)
+            )
+            await requests_info_crud.create(info)
+            await asyncio.sleep(TIME_SPAM)
+    except Exception as error:
+        logger.critical(error)
+        await callback.message.answer("Ошибка сервера!")
 
 
 @router.message(F.text.lower() == "остановить уведомления")
@@ -79,10 +85,17 @@ async def get_info(msg: Message, state: FSMContext):
 async def return_info(msg: Message, state: FSMContext):
     """Хендлер выдачи информации о товаре."""
     logger.info(f"Получено сообщение {msg.text}")
-    await msg.answer(
-        INFO_MSG.format(*get_api_answer(int(msg.text))),
-        reply_markup=keyboard_inline,
-    )
-    info = dict(user_id=int(msg.from_user.id), article=int(msg.text))
-    await requests_info_crud.create(info)
+    if re.compile(ARTICLE_PAT).match(msg.text):
+        try:
+            await msg.answer(
+                INFO_MSG.format(*get_api_answer(int(msg.text))),
+                reply_markup=keyboard_inline,
+            )
+            info = dict(user_id=int(msg.from_user.id), article=int(msg.text))
+            await requests_info_crud.create(info)
+        except Exception as error:
+            logger.critical(error)
+            await msg.answer("Ошибка сервера!")
+    else:
+        await msg.answer("Введён не корректный артикул!")
     await state.clear()
