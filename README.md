@@ -9,7 +9,10 @@
 - pydantic-settings
 - python-dotenv
 - requests
+- PostgreSQL
 - SQLAlchemy
+- Docker
+- Docker-compose
 
 ### Доступный функционал
 
